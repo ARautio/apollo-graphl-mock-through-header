@@ -7,13 +7,14 @@ import {
 } from "@apollo/client";
 import React from "react";
 
-const client = new ApolloClient({
-  uri: "http://localhost:4000",
-  cache: new InMemoryCache(),
-  headers: {
-    mockType: "FIRST",
-  },
-});
+const clientFn = (mock) =>
+  new ApolloClient({
+    uri: "http://localhost:4000",
+    cache: new InMemoryCache(),
+    headers: {
+      mockType: mock,
+    },
+  });
 
 const BOOKS = gql`
   query Books {
@@ -30,13 +31,20 @@ const Books = ({ children }) => {
 };
 
 const HomePage = () => {
+  const [mock, setMock] = React.useState("FIRST");
+  const client = clientFn(mock);
   return (
     <ApolloProvider client={client}>
       <Books>
         {({ data, loading }) => (
           <React.Fragment>
             <h2>My first Apollo app 🚀</h2>
+            <input
+              value={mock}
+              onChange={(value) => setMock(value.target.value)}
+            />
             {loading === true ? "LOADING" : null}
+
             {data.map((item) => (
               <div>
                 {item.title} - {item.author}
